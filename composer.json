@@ -1,0 +1,15 @@
+{
+    "name": "unicode/autoload",
+    "description": "Bui Duc Phu",
+    "type": "library",
+    "autoload": {
+        "psr-4": {
+            "mvc\\" : "mvc/"
+        }
+    },
+    "require": {
+        "ext-pdo": "*",
+        "ext-json": "*",
+        "noahbuscher/macaw": "dev-master"
+    }
+}
