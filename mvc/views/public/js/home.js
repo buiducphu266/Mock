@@ -430,7 +430,7 @@ function getPage(id){
                 return `
             <div class="p-b-63">
             <a href="#" onclick="handleNewsDetail(${news.id})" class="hov-img0 how-pos5-parent">
-              <img src="../../public/images/${news.image}" alt="IMG-BLOG">
+              <img src="/public/uploads/${news.image}" alt="IMG-BLOG">
             </a>
 
             <div class="p-t-32">

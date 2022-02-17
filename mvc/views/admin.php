@@ -186,15 +186,11 @@
                             <div id="main-content">
 
                             </div>
-<!--                            <div>-->
-<!--                                <ul class="pagination pagination-sm">-->
-<!--                                    <li class="page-item"><a href="#" class="page-link">«</a></li>-->
-<!--                                    <li class="page-item"><a href="#" class="page-link">1</a></li>-->
-<!--                                    <li class="page-item"><a href="#" class="page-link">2</a></li>-->
-<!--                                    <li class="page-item"><a href="#" class="page-link">3</a></li>-->
-<!--                                    <li class="page-item"><a href="#" class="page-link">»</a></li>-->
-<!--                                </ul>-->
-<!--                            </div>-->
+                            <div >
+                                <ul id="page-news-admin" class="pagination pagination-sm">
+
+                                </ul>
+                            </div>
 
                         </div>
                         <!-- /.card -->

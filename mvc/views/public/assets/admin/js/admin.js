@@ -26,7 +26,8 @@ let newsApi = 'http://localhost/PHP-MVC-API/news';
 let option = '';
 let listCates = '';
 let listNewss = '';
-let page = 1;
+let listPages = '';
+let total_pages ;
 function start(){
     getCategorys(renderCategorys)
     getCategorys(renderListCate)
@@ -51,18 +52,49 @@ function getNewss(callback){
         .then(callback);
 }
 
-function renderPage(page){
+function renderListNewsOfPage(page){
     fetch(newsApi + '/page/' + page)
         .then(function (response){
             return response.json();
         })
-        .then(callback);
+        .then(function (newss){
+            let stt = 1;
+            let htmls = '';
+            if (newss.data.newss){
+                htmls = newss.data.newss.map(function (news){
+                    return `
+            <tr>
+                <td>${stt++}</td>
+                <td>
+                    <a target="_blank" href="#"><img width="100px" src="/public/uploads/${news.image}"></a>
+                </td>
+                <td>${news.news_title}</td>
+                <td>${news.description}</td>
+                <td>
+                    <a class="btn btn-primary btn-sm" onclick="renderUpdateNews(${news.id})" href="#">
+                        <i class="fas fa-edit"></i>
+                    </a>
+                    <a href="#" onclick="deleteNews(${news.id})" class="btn btn-danger btn-sm">
+                        <i class="fas fa-trash"></i>
+                    </a>
+                </td>
+            </tr>
+        `
+                })
+            }
+
+            listNewss = htmls;
+        })
+        .then(function (response){
+            getListNewss()
+        })
 }
 
 function renderListNewss(newss){
     let stt = 1;
     let htmls = '';
     if (newss.data.newss){
+        total_pages = newss.data.total_page;
         htmls = newss.data.newss.map(function (news){
             return `
             <tr>
@@ -245,9 +277,9 @@ function updateCate(id){
         .then(function (response){
             alert(response.message)
         })
-        // .then(function (){
-        //     renderCreateCategory()
-        // })
+        .then(function (){
+            getListCategorys()
+        })
 }
 
 function updateNews(id){
@@ -276,6 +308,9 @@ function updateNews(id){
         })
         .then(function (response){
             alert(response.message)
+        })
+        .then(function (response){
+            getListNewss()
         })
 }
 
@@ -328,7 +363,7 @@ function renderCategorys(categorys){
 }
 
 function renderCreateCategory(){
-
+    $('#page-news-admin').html('');
     let mainContent = document.querySelector('#main-content');
     let ckediter = document.querySelector('#ckediter');
     let htmls = `
@@ -371,6 +406,7 @@ function renderCreateCategory(){
 }
 
 function renderCreateNews(){
+    $('#page-news-admin').html('');
     let mainContent = document.querySelector('#main-content');
     let htmls = `
                 <div class="card-body">
@@ -452,6 +488,9 @@ function createNews(){
         .then(function (response){
             alert(response.message)
         })
+        .then(function (response){
+            renderCreateNews()
+        })
 }
 
 function createCategory(){
@@ -495,6 +534,7 @@ $(document).on('change','#upload_file', function (e){
 
 function getListCategorys(){
     start()
+    $('#page-news-admin').html('');
     let mainContent = document.querySelector('#main-content');
     let htmls = `
         <nav class="main-header navbar navbar-expand navbar-white navbar-light">
@@ -543,6 +583,7 @@ function getListCategorys(){
 function getListNewss(){
     start()
     let mainContent = document.querySelector('#main-content');
+    let pageContent = document.querySelector('#page-news-admin');
     let htmls = `
         <nav class="main-header navbar navbar-expand navbar-white navbar-light">
 
@@ -584,6 +625,16 @@ function getListNewss(){
         </tbody>
     </table>
     `;
-    mainContent.innerHTML = htmls
+    renderPage();
+    mainContent.innerHTML = htmls;
+    pageContent.innerHTML = listPages;
 }
 
+function renderPage(){
+    let htmls_page = ''
+    for (let i = 1; i <= total_pages; i++){
+        htmls_page += `<li class="page-item"><a href="#" onclick="renderListNewsOfPage(${i})" class="page-link">${i}</a></li>`
+    }
+    listPages = htmls_page;
+
+}
