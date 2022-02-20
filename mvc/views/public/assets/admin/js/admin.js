@@ -24,11 +24,11 @@ function getCookie(cname) {
 let categoryApi = 'http://localhost/PHP-MVC-API/category';
 let newsApi = 'http://localhost/PHP-MVC-API/news';
 let userApi = 'http://localhost/PHP-MVC-API/user';
-let option = '';
-let listCates = '';
-let listNewss = '';
-let listPages = '';
-let total_pages ;
+let option;
+let listCates;
+let listNewss;
+let listPages;
+let total_pages;
 function start(){
     getCategorys(renderCategorys)
     getCategorys(renderListCate)
@@ -106,11 +106,9 @@ function renderListNewsOfPage(page){
                 })
             }
 
-            listNewss = htmls;
+            $('#admin-list-news').html(htmls)
         })
-        .then(function (response){
-            getListNewss()
-        })
+
 }
 
 function renderListNewss(newss){
@@ -140,10 +138,11 @@ function renderListNewss(newss){
         })
     }
 
-    listNewss = htmls;
+    $('#admin-list-news').html(htmls)
 }
 
 function renderListCate(categorys){
+
     let stt = 1;
     let htmls = categorys.data.map(function (category){
         return `
@@ -166,7 +165,7 @@ function renderListCate(categorys){
         `
     })
 
-    listCates = htmls;
+    $('#admin-list-category').html(htmls)
 }
 
 function renderUpdateCate(id){
@@ -207,7 +206,7 @@ function renderUpdateCate(id){
             </div>
 
             <div class="card-footer">
-                <button type="submit" onclick="updateCate(${category.data.id})" class="btn btn-primary">Tạo Danh Mục</button>
+                <button type="submit" onclick="updateCate(${category.data.id})" class="btn btn-primary">Submit</button>
             </div>
     `;
 
@@ -268,7 +267,7 @@ function renderUpdateNews(id){
             
                         </div>
                         <div class="card-footer">
-                            <button type="submit" onclick="updateNews(${news.data.id})" class="btn btn-primary">Tạo Danh Mục</button>
+                            <button type="submit" onclick="updateNews(${news.data.id})" class="btn btn-primary">Submit</button>
                         </div>
             `;
 
@@ -525,7 +524,7 @@ function createNews(){
         })
         .then(function (response){
             if (response.success){
-                renderCreateNews()
+                getListNewss()
             }
             else {
                 alert(response.message)
@@ -555,7 +554,7 @@ function createCategory(){
         })
         .then(function (response){
             if (response.success){
-                renderCreateCategory()
+                getListCategorys()
             }
             else {
                 alert(response.message)
@@ -615,8 +614,8 @@ function getListCategorys(){
             <th style="width: 100px">&nbsp;</th>
         </tr>
         </thead>
-        <tbody id="list">
-            ${listCates}
+        <tbody id="admin-list-category">
+            
         </tbody>
     </table>
     `;
@@ -626,7 +625,6 @@ function getListCategorys(){
 function getListNewss(){
     start()
     let mainContent = document.querySelector('#main-content');
-    let pageContent = document.querySelector('#page-news-admin');
     let htmls = `
         <nav class="main-header navbar navbar-expand navbar-white navbar-light">
 
@@ -663,15 +661,15 @@ function getListNewss(){
             <th style="width: 100px">&nbsp;</th>
         </tr>
         </thead>
-        <tbody id="list">
-            ${listNewss}
+        <tbody id="admin-list-news">
+            
         </tbody>
     </table>
     
     `;
     renderPage();
     mainContent.innerHTML = htmls;
-    pageContent.innerHTML = listPages;
+
 }
 
 function renderPage(){
@@ -679,7 +677,7 @@ function renderPage(){
     for (let i = 1; i <= total_pages; i++){
         htmls_page += `<li class="page-item"><a href="#" onclick="renderListNewsOfPage(${i})" class="page-link">${i}</a></li>`
     }
-    listPages = htmls_page;
+    $('#page-news-admin').html(htmls_page);
 
 }
 
