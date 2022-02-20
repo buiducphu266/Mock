@@ -14,11 +14,11 @@ class NewsRepository
     }
 
     public function getRandomNews(){
-        return $this->model->fetchAll(['id', 'title'],'', ['', 'RAND()'], [0, 7]);
+        return $this->model->fetchAll(['id', 'title'],['public_at' , '>=' , 'now()'], ['', 'RAND()'], [0, 7]);
     }
 
     public function getHotNews(){
-        return $this->model->fetchAll(['id', 'title', 'image', 'numofreads'],'', ['numofreads', 'DESC'], [0, 7]);
+        return $this->model->fetchAll(['id', 'title', 'image', 'numofreads'],['public_at' , '>=' , 'now()'], ['numofreads', 'DESC'], [0, 7]);
     }
 
     public function getNewsByID($id){
@@ -35,10 +35,18 @@ class NewsRepository
     }
 
     public function numberOfNews(){
+        return $this->model->fetchAll(['COUNT(id) as total'], ['public_at' , '>=' , 'now()'], '', [0, 1]);
+    }
+
+    public function numberOfNewsAdmin(){
         return $this->model->fetchAll(['COUNT(id) as total'], '', '', [0, 1]);
     }
 
     public function getPage($offset, $limit){
+        return $this->model->fetchAll(['*'], ['public_at' , '>=' , 'now()'], ['id', 'DESC'], [$offset, $limit]);
+    }
+
+    public function getPageAdmin($offset, $limit){
         return $this->model->fetchAll(['*'], '', ['id', 'DESC'], [$offset, $limit]);
     }
 

@@ -294,6 +294,75 @@ class News
         }
     }
 
+    public function pageAdmin($id){
+        if ($this->middleware->checkToken() == false){
+            $this->response->setHttpStatusCode(400);
+            $this->response->setSuccess(false);
+            $this->response->addMessage("Vui long dang nhap");
+            return $this->response->send();
+        }
+        try {
+            $limitPage = 10;
+            $rowCount = $this->newsRepository->numberOfNewsAdmin();
+            $totalTask = ($rowCount[0]['total']);
+
+            $numOfPage = ceil($totalTask/$limitPage);
+            if ($numOfPage == 0){
+                $numOfPage = 1;
+            }
+
+            $offset = $id == 1 ? 0 : $limitPage*($id-1);
+            if($id > $numOfPage || $id == 0){
+                $this->response->setHttpStatusCode(404);
+                $this->response->setSuccess(false);
+                $this->response->addMessage("Page not found");
+                return $this->response->send();
+            }
+            $data = [];
+            $data['number_of_page'] = $id;
+            $data['total_page'] = $numOfPage;
+            $cate_title = '';
+            $newsDatas = $this->newsRepository->getPageAdmin($offset, $limitPage);
+            foreach ($newsDatas as $newsData){
+                if ($newsData['category_id'] == 0){
+                    $cate_title = 'Danh mục cha';
+                }
+                else{
+                    $cateData = $this->categoryRepository->getCategoryByID($newsData['category_id']);
+                    $cate_title = $cateData['title'];
+                }
+                $userData = $this->userRepository->getUserByID($newsData['user_id']);
+                if (!$newsData || !$userData){
+                    $this->response->setSuccess(false);
+                    $this->response->setHttpStatusCode(404);
+                    $this->response->addMessage("Khong tim thay News");
+                    return $this->response->send();
+                }
+                $data['newss'][] = [
+                    'id' => $newsData['id'],
+                    'user_name' => $userData['name'],
+                    'category_title' => $cate_title,
+                    'news_title' => $newsData['title'],
+                    'description' => $newsData['description'],
+                    'image' => $newsData['image'],
+                    'public_at' => $newsData['public_at'],
+                ];
+            }
+
+            $this->response->setSuccess(true);
+            $this->response->setHttpStatusCode(200);
+            $this->response->toCache(true);
+            $this->response->setData($data);
+            return $this->response->send();
+        }
+        catch (PDOException $exception){
+            $this->response->setHttpStatusCode(500);
+            $this->response->setSuccess(false);
+            $this->response->addMessage("Get page error");
+            return $this->response->send();
+        }
+    }
+
     public function random(){
 
         try {
@@ -434,7 +503,7 @@ class News
 }
 
     public function delete($id){
-        if ($this->checkToken() == false){
+        if ($this->middleware->checkToken() == false){
             $this->response->setHttpStatusCode(400);
             $this->response->setSuccess(false);
             $this->response->addMessage("Vui long dang nhap");

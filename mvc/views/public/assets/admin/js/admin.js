@@ -23,6 +23,7 @@ function getCookie(cname) {
 
 let categoryApi = 'http://localhost/PHP-MVC-API/category';
 let newsApi = 'http://localhost/PHP-MVC-API/news';
+let userApi = 'http://localhost/PHP-MVC-API/user';
 let option = '';
 let listCates = '';
 let listNewss = '';
@@ -38,7 +39,14 @@ function start(){
 start();
 
 function getCategorys(callback){
-    fetch(categoryApi + '/show')
+    let options = {
+        method: 'GET',
+        headers: {
+            'Content-Type': 'application/json',
+            'Authorization' : getCookie("access_token")
+        }
+    }
+    fetch(categoryApi+ '/show-admin',options)
         .then(function (response){
             return response.json();
         })
@@ -46,7 +54,14 @@ function getCategorys(callback){
 }
 
 function getNewss(callback){
-    fetch(newsApi + '/page/1')
+    let options = {
+        method: 'GET',
+        headers: {
+            'Content-Type': 'application/json',
+            'Authorization' : getCookie("access_token")
+        }
+    }
+    fetch(newsApi+ '/page-admin/1',options)
         .then(function (response){
             return response.json();
         })
@@ -54,7 +69,14 @@ function getNewss(callback){
 }
 
 function renderListNewsOfPage(page){
-    fetch(newsApi + '/page/' + page)
+    let options = {
+        method: 'GET',
+        headers: {
+            'Content-Type': 'application/json',
+            'Authorization' : getCookie("access_token")
+        }
+    }
+    fetch(newsApi+ '/page-admin/'+page,options)
         .then(function (response){
             return response.json();
         })
@@ -64,22 +86,22 @@ function renderListNewsOfPage(page){
             if (newss.data.newss){
                 htmls = newss.data.newss.map(function (news){
                     return `
-            <tr>
-                <td>${stt++}</td>
-                <td>
-                    <a target="_blank" href="#"><img width="100px" src="/public/uploads/${news.image}"></a>
-                </td>
-                <td>${news.news_title}</td>
-                <td>${news.description}</td>
-                <td>
-                    <a class="btn btn-primary btn-sm" onclick="renderUpdateNews(${news.id})" href="#">
-                        <i class="fas fa-edit"></i>
-                    </a>
-                    <a href="#" onclick="deleteNews(${news.id})" class="btn btn-danger btn-sm">
-                        <i class="fas fa-trash"></i>
-                    </a>
-                </td>
-            </tr>
+                        <tr>
+                            <td>${stt++}</td>
+                            <td>
+                                <a target="_blank" href="#"><img width="100px" src="/public/uploads/${news.image}"></a>
+                            </td>
+                            <td>${news.news_title}</td>
+                            <td>${news.description}</td>
+                            <td>
+                                <a class="btn btn-primary btn-sm" onclick="renderUpdateNews(${news.id})" href="#">
+                                    <i class="fas fa-edit"></i>
+                                </a>
+                                <a href="#" onclick="deleteNews(${news.id})" class="btn btn-danger btn-sm">
+                                    <i class="fas fa-trash"></i>
+                                </a>
+                            </td>
+                        </tr>
         `
                 })
             }
@@ -276,11 +298,14 @@ function updateCate(id){
             return response.json();
         })
         .then(function (response){
-            alert(response.message)
+            if (response.success){
+                getListCategorys()
+            }
+            else {
+                alert(response.message)
+            }
         })
-        .then(function (){
-            getListCategorys()
-        })
+
 }
 
 function updateNews(id){
@@ -308,11 +333,14 @@ function updateNews(id){
             return  responses.json();
         })
         .then(function (response){
-            alert(response.message)
+            if (response.success){
+                getListNewss()
+            }
+            else {
+                alert(response.message)
+            }
         })
-        .then(function (response){
-            getListNewss()
-        })
+
 }
 
 function deleteNews(id){
@@ -329,7 +357,12 @@ function deleteNews(id){
                 return response.json();
             })
             .then(function (response){
-                alert(response.message)
+                if (response.success){
+                    getListNewss()
+                }
+                else {
+                    alert(response.message)
+                }
             })
     }
 }
@@ -348,7 +381,12 @@ function deleteCate(id){
                 return response.json();
             })
             .then(function (response){
-                alert(response.message)
+                if (response.success){
+                    getListCategorys()
+                }
+                else {
+                    alert(response.message)
+                }
             })
 
     }
@@ -423,7 +461,7 @@ function renderCreateNews(){
                             ${option}
                         </select>
                     </div>
-                    <input type="hidden" id="user_id" value="1">
+                    <input type="hidden" id="user_id" value="${getCookie("user_id")}">
                     <div class="form-group">
                         <label>Mô Tả </label>
                         <textarea id="description" class="form-control"></textarea>
@@ -463,7 +501,6 @@ function renderCreateNews(){
 }
 
 function createNews(){
-    start()
     let data = {
         "title" : $("#title").val(),
         "description" : CKEDITOR.instances['description'].getData(),
@@ -487,11 +524,14 @@ function createNews(){
             return response.json();
         })
         .then(function (response){
-            alert(response.message)
+            if (response.success){
+                renderCreateNews()
+            }
+            else {
+                alert(response.message)
+            }
         })
-        .then(function (response){
-            renderCreateNews()
-        })
+
 }
 
 function createCategory(){
@@ -514,10 +554,12 @@ function createCategory(){
             return response.json();
         })
         .then(function (response){
-            alert(response.message)
-        })
-        .then(function (){
-            renderCreateCategory()
+            if (response.success){
+                renderCreateCategory()
+            }
+            else {
+                alert(response.message)
+            }
         })
 
 }
@@ -642,5 +684,25 @@ function renderPage(){
 }
 
 function logout(){
+    let id = getCookie("session_id");
+    let options = {
+        method: 'DELETE',
+        headers: {
+            'Content-Type': 'application/json',
+            'Authorization' : getCookie("access_token")
+        }
+    }
+    fetch(userApi+ '/logout/'+id,options)
+        .then(function (response){
+            return response.json();
+        })
+        .then(function (response){
+            if (response.success){
+                window.location = "/"
+            }
+            else {
+                alert(response.message)
+            }
+        })
 
 }

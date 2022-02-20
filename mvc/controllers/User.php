@@ -81,7 +81,6 @@ class User
             $access_token_expiry_seconds = 1200;
             $refresh_token_expiry_seconds = 1209600;
 
-            $id = '';
             $date = date('Y-m-d H:i:s');
             $access_token_expiry = date('Y-m-d H:i:s',strtotime($date) + $access_token_expiry_seconds);
             $refresh_token_expiry = date('Y-m-d H:i:s',strtotime($date) + $refresh_token_expiry_seconds);
@@ -93,7 +92,7 @@ class User
                 'refreshtokenexpiry' => $refresh_token_expiry
 
             ];
-            $session = $this->sessionRepository->store($data,$id);
+            $session = $this->sessionRepository->store($data,$sessionsid);
             if (!$session){
                 $this->response->setHttpStatusCode(400);
                 $this->response->setSuccess(false);
@@ -102,8 +101,8 @@ class User
             }
 
             $returnData = [];
-            $returnData['session_id'] = $userData[0]['id'];
-            $returnData['user_id'] = $id;
+            $returnData['session_id'] = $sessionsid;
+            $returnData['user_id'] = $userData[0]['id'];
             $returnData['user_name'] = $userData[0]["name"];
             $returnData['access_token'] = $accesstoken;
             $returnData['access_token_expiry_seconds'] = $access_token_expiry_seconds;

@@ -39,6 +39,22 @@ class Category
 
     }
 
+    public function showAdmin(){
+        if ($this->middleware->checkToken() == false){
+            $this->response->setHttpStatusCode(400);
+            $this->response->setSuccess(false);
+            $this->response->addMessage("Vui long dang nhap");
+            return $this->response->send();
+        }
+        $data = $this->categoryRepository->getAll();
+        $this->response->setSuccess(true);
+        $this->response->setHttpStatusCode(200);
+        $this->response->toCache(true);
+        $this->response->setData($data);
+        return $this->response->send();
+
+    }
+
     public function get($id){
         try {
             $newsDatas = $this->newsRepository->getNewsByCateID($id);
@@ -278,7 +294,7 @@ class Category
     }
 
     public function delete($id){
-        if ($this->checkToken() == false){
+        if ($this->middleware->checkToken() == false){
             $this->response->setHttpStatusCode(400);
             $this->response->setSuccess(false);
             $this->response->addMessage("Vui long dang nhap");
