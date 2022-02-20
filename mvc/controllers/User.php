@@ -1,5 +1,6 @@
 <?php
 namespace mvc\controllers;
+use mvc\middlewares\Middleware;
 use mvc\repository\UserRepository;
 use mvc\repository\SessionRepository;
 use mvc\core\Response;
@@ -9,12 +10,14 @@ class User
 {
     private $userRepository;
     private $sessionRepository;
+    private $middleware;
     private $response;
 
     public function __construct()
     {
         $this->userRepository = new UserRepository();
         $this->sessionRepository = new SessionRepository();
+        $this->middleware = new Middleware();
         $this->response = new Response();
     }
 
@@ -99,7 +102,9 @@ class User
             }
 
             $returnData = [];
-            $returnData['session_id'] = $id;
+            $returnData['session_id'] = $userData[0]['id'];
+            $returnData['user_id'] = $id;
+            $returnData['user_name'] = $userData[0]["name"];
             $returnData['access_token'] = $accesstoken;
             $returnData['access_token_expiry_seconds'] = $access_token_expiry_seconds;
             $returnData['refresh_token'] = $refreshtoken;
@@ -119,13 +124,13 @@ class User
     }
 
     public function logout($id){
-        $header = getallheaders();
-        if (empty($header['Authorization'])){
+        if ($this->middleware->checkToken() == false){
+            $this->response->setHttpStatusCode(400);
             $this->response->setSuccess(false);
-            $this->response->setHttpStatusCode(401);
-            $this->response->addMessage("Nhap lai HTTP_AUTHORIZATION");
+            $this->response->addMessage("Vui long dang nhap");
             return $this->response->send();
         }
+        $header = getallheaders();
         try {
             $accesstoken = $header['Authorization'];
             $sessionData = $this->sessionRepository->getSessionById($id);
@@ -133,14 +138,14 @@ class User
             if (!$sessionData){
                 $this->response->setSuccess(false);
                 $this->response->setHttpStatusCode(404);
-                $this->response->addMessage("Khong tim thay session");
+                $this->response->addMessage("Vui lòng đăng nhập");
                 return $this->response->send();
             }
 
             if ($sessionData['accesstoken'] !== $accesstoken){
                 $this->response->setSuccess(false);
                 $this->response->setHttpStatusCode(404);
-                $this->response->addMessage("Khong tim thay session");
+                $this->response->addMessage("Vui lòng đăng nhập");
                 return $this->response->send();
             }
 
@@ -157,9 +162,6 @@ class User
             $this->response->addMessage("Error");
             return $this->response->send();
         }
-
-
-
     }
     public function register(){
         return $this-> userRepository->register();

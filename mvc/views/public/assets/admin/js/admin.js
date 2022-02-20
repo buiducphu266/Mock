@@ -32,6 +32,7 @@ function start(){
     getCategorys(renderCategorys)
     getCategorys(renderListCate)
     getNewss(renderListNewss)
+    $('#info').html(`<a class="d-block">${getCookie("user_name")}</a>`)
 }
 
 start();
@@ -624,6 +625,7 @@ function getListNewss(){
             ${listNewss}
         </tbody>
     </table>
+    
     `;
     renderPage();
     mainContent.innerHTML = htmls;
@@ -636,5 +638,9 @@ function renderPage(){
         htmls_page += `<li class="page-item"><a href="#" onclick="renderListNewsOfPage(${i})" class="page-link">${i}</a></li>`
     }
     listPages = htmls_page;
+
+}
+
+function logout(){
 
 }

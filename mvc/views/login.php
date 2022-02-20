@@ -107,7 +107,8 @@
           .then(function (response){
             if (response.success){
               setCookie("access_token", `${response.data.access_token}`, `${response.data.access_token_expiry_seconds}`);
-              // setCookie("refresh_token", `${response.data.refresh_token}`, `${response.data.refresh_token_expiry_seconds}`);
+              setCookie("user_name", `${response.data.user_name}`, `${response.data.access_token_expiry_seconds}`);
+              setCookie("user_id", `${response.data.user_id}`, `${response.data.access_token_expiry_seconds}`);
               window.location = "?page=admin"
                 // console.log(document.cookie)
             }

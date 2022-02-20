@@ -4,6 +4,7 @@ use mvc\repository\CategoryRepository;
 use mvc\repository\NewsRepository;
 use mvc\repository\UserRepository;
 use mvc\repository\SessionRepository;
+use mvc\middlewares\Middleware;
 use mvc\core\Response;
 use mvc\helpers\Helpers;
 use PDOException;
@@ -14,6 +15,7 @@ class Category
     private $userRepository;
     private $newsRepository;
     private $sessionRepository;
+    private $middleware;
     private $response;
 
     public function __construct()
@@ -22,6 +24,7 @@ class Category
         $this->newsRepository = new NewsRepository();
         $this->userRepository = new UserRepository();
         $this->sessionRepository = new SessionRepository();
+        $this->middleware = new Middleware();
         $this->response = new Response();
     }
 
@@ -76,7 +79,7 @@ class Category
     }
 
     public function create(){
-        if ($this->checkToken() == false){
+        if ($this->middleware->checkToken() == false){
             $this->response->setHttpStatusCode(400);
             $this->response->setSuccess(false);
             $this->response->addMessage("Vui long dang nhap");
@@ -145,7 +148,7 @@ class Category
     }
 
     public function update($id){
-        if ($this->checkToken() == false){
+        if ($this->middleware->checkToken() == false){
             $this->response->setHttpStatusCode(400);
             $this->response->setSuccess(false);
             $this->response->addMessage("Vui long dang nhap");
@@ -328,29 +331,4 @@ class Category
         }
     }
 
-    public function checkToken(){
-        $header = getallheaders();
-        if (empty($header['Authorization'])){
-            return false;
-        }
-
-        try {
-            $accesstoken = $header['Authorization'];
-            $sessionData = $this->sessionRepository->getSessionByToken($accesstoken);
-
-            if (!$sessionData){
-                return false;
-            }
-            $date = date('Y-m-d H:i:s');
-
-            if (strtotime($sessionData[0]['accesstokenexpiry']) < strtotime($date)){
-                return false;
-            }
-
-            return true;
-        }
-        catch (PDOException $exception){
-            return false;
-        }
-    }
 }
